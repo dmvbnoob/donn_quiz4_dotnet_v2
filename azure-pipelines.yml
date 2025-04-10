@@ -1,0 +1,32 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  name: comp367-mac
+  demands:
+    - agent.name -equals MacBookPro
+
+jobs:
+- job: Build
+  displayName: 'Build ASP.NET Core App'
+  steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.x'
+    - script: dotnet restore
+      displayName: 'Restore NuGet Packages'
+    - script: dotnet build --configuration Release
+      displayName: 'Build Solution'
+    - script: dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)
+      displayName: 'Publish'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        artifact: 'drop'
+        publishLocation: 'pipeline'
